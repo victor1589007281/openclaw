@@ -59,6 +59,8 @@ graph TB
 | 08 | [多Agent协作与编码能力](./08-多Agent协作与编码能力.md) | Subagent 系统、编码工具集、四层纠偏机制（Prompt 安全护栏/Compaction/Subagent 聚焦/自动修复） |
 | 09 | [部署方案-Ubuntu飞书实战](./09-部署方案-Ubuntu飞书实战.md) | Ubuntu Mini 主机部署、**SearXNG 免费搜索原理**（为什么不需要代理）、飞书机器人集成、国内零代理方案 |
 || 10 | [大模型支持](./10-大模型支持.md) | **29+ 提供商全景**、6 种 API 协议、**7 个国内直连**、OAuth 认证扩展、Ollama 本地模型、配置格式详解 |
+|| 11 | [提示词工程](./11-提示词工程.md) | **源码级深度解读**：System Prompt 分段组装、SOUL.md 人格系统、Safety 硬编码、Skills 延迟加载、Hook 扩展、会话压缩 |
+|| 12 | [交互机制与优化分析](./12-交互机制与优化分析.md) | **思维链**（非 ReAct，Tool-Use Loop）、**任务拆分**（LLM 自主）、**交互上限**、**话题分叉与数据召回**（Memory 系统）、提示词优化建议 |
 
 ## 关键设计亮点
 
@@ -102,3 +104,12 @@ graph TB
 - **Ollama 本地模型**：完全离线运行，自动发现本地模型
 - **6 种 API 协议**统一抽象：OpenAI / Anthropic / Google / Bedrock / GitHub Copilot / OAuth
 - **5 个 OAuth 认证插件**：免去手动管理 API Key 的麻烦
+
+### 8. 提示词工程：模块化分段组装 + 人格外置
+- System Prompt 由 **15+ 独立段落条件组装**，`buildAgentSystemPrompt()` 一个函数 608 行
+- **SOUL.md 人格外置**：AI 性格定义在用户可编辑文件中，支持自定义人格
+- **Safety 安全红线硬编码**：参考 Anthropic Constitutional AI，始终包含安全规则
+- **Skills 延迟加载**：仅注入标题描述，按需 `read` 完整 SKILL.md，节省 90%+ Token
+- **three-mode 降级**：full → minimal → none 三档精简，Subagent 用 minimal 省 Token
+- **Hook 扩展**：`before_agent_start` 允许插件注入或替换 System Prompt
+- **会话压缩**：长对话自动分块摘要，保留决策/TODO/约束
